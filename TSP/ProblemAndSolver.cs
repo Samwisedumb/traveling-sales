@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -9,7 +10,7 @@ namespace TSP
 
     class ProblemAndSolver
     {
-
+     
         private class TSPSolution
         {
             /// <summary>
@@ -51,6 +52,75 @@ namespace TSP
                 cost += here.costToGetTo(Route[0] as City);
                 return cost;
             }
+        }
+
+        public void print(String sting) {
+            System.Diagnostics.Debug.WriteLine(sting);
+        }
+
+
+        public void greedySolve()
+        {
+            Route = new ArrayList(Cities.Length);
+            HashSet<int> unvisitedIndexes = new HashSet<int>(); // using a city's index in Cities, we can interate through indexes that have yet to be added
+            for (int index = 0; index < Cities.Length; index++)
+            {
+                unvisitedIndexes.Add(index);
+            }
+
+            print("\n\nTESTING\n");
+
+            City city;
+            for (int i = 0; i < Cities.Length; i++) // keep trying start nodes until a solution is found
+            {
+                if (Route.Count == Cities.Length)
+                {
+                    break; // DONE!
+                }
+                else
+                {
+                    Route.Clear();
+                    for (int index = 0; index < Cities.Length; index++)
+                    {
+                        unvisitedIndexes.Add(index);
+                    }
+                    city = Cities[i];
+                }
+
+                for (int n = 0; n < Cities.Length; n++) // add nodes n times
+                {
+
+                    double shortestDistance = Double.PositiveInfinity;
+                    int closestIndex = -1;
+                    foreach (int check in unvisitedIndexes) //find the closest city to add to route
+                    {
+                        double distance = city.costToGetTo(Cities[check]);
+                        if (distance < shortestDistance)
+                        {
+                            shortestDistance = distance;
+                            closestIndex = check;
+                        }
+                    }
+
+                    if (closestIndex != -1)
+                    {
+                        city = Cities[closestIndex];
+                        Route.Add(city);
+                        unvisitedIndexes.Remove(closestIndex);
+                    }
+                    else
+                    {
+                        break; // try again
+                    }
+                }                
+            }
+
+            // call this the best solution so far.  bssf is the route that will be drawn by the Draw method. 
+            bssf = new TSPSolution(Route);
+            // update the cost of the tour. 
+            Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();
+            // do a refresh. 
+            Program.MainForm.Invalidate();
         }
 
         #region Private members 
@@ -302,4 +372,5 @@ namespace TSP
         }
         #endregion
     }
+
 }
