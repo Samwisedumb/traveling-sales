@@ -10,7 +10,7 @@ namespace TSP
 
     class ProblemAndSolver
     {
-     
+        Dictionary<City, Edge> map;
         private class TSPSolution
         {
             /// <summary>
