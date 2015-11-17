@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 
@@ -173,8 +169,7 @@ namespace TSP
 
         private void yourTSPToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            // TODO: Add a hook into your own implementation here.
-            throw new NotImplementedException();
+            CityData.antSolve();
         }
 
         private void AlgorithmMenu2_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)

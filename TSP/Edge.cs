@@ -1,27 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TSP
+﻿namespace TSP
 {
     class Edge
     {
-        City startNode;
-        City endNode;
-        double cost;
-        bool visited;
-        double probability;
+        private City startNode;
+        private City endNode;
+        private double cost;
+        private bool visited;
+        private double probability;
 
-        public Edge(City startNode, City endNode, bool visited)
+        public Edge(City startNode, City endNode, bool visited, double cost)
         {
             this.startNode = startNode;
             this.endNode = endNode;
             this.visited = visited;
+            this.cost = cost;
         }
 
         public Edge() { }
+
+        public void increaseProbability()
+        {
+            //TODO: correctly increase probability
+        }
+
         public City GetStartNode()
         {
             return startNode;
