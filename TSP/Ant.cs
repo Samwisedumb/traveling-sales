@@ -6,7 +6,7 @@ namespace TSP
     {
         private List<Edge> edges;
         private double totalCost;
-        private City currentCity;
+        private int currentCityIndex;
 
         public Ant()
         {
@@ -31,14 +31,14 @@ namespace TSP
             this.totalCost += e.GetCost();
         }
 
-        public City getCurrentCity()
+        public int getCurrentCityIndex()
         {
-            return currentCity;
+            return currentCityIndex;
         }
 
-        public void setCurrentCity(City city)
+        public void setCurrentCityIndex(int city)
         {
-            this.currentCity = city;
+            this.currentCityIndex = city;
         }
 
         public List<Edge> GetEdges()

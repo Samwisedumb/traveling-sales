@@ -56,23 +56,39 @@ namespace TSP
             System.Diagnostics.Debug.WriteLine(sting);
         }
 
-        public Dictionary<City, List<Edge>> generateMap()
+        //public Dictionary<City, List<Edge>> generateMap()
+        //{
+        //    Dictionary<City, List<Edge>> result = new Dictionary<City, List<Edge>>();
+        //    foreach (City city in Cities)
+        //    {
+        //        List<Edge> edges = new List<Edge>();
+        //        foreach (City compareCity in Cities)
+        //        {
+        //            double cost = city.costToGetTo(compareCity);
+        //            if (cost < double.PositiveInfinity)
+        //            {
+        //                edges.Add(new Edge(city, compareCity, false, cost));
+        //            }
+        //        }
+        //        result.Add(city, edges);
+        //    }
+        //    return result;
+        //}
+
+        public Edge[,] generateCostMatrix()
         {
-            Dictionary<City, List<Edge>> result = new Dictionary<City, List<Edge>>();
-            foreach (City city in Cities)
+            Edge[,] costMatrix = new Edge[Cities.Length, Cities.Length];
+            for (int row = 0; row < Cities.Length; row++)
             {
-                List<Edge> edges = new List<Edge>();
-                foreach (City compareCity in Cities)
+                for (int column = 0; column < Cities.Length; column++)
                 {
-                    double cost = city.costToGetTo(compareCity);
-                    if (cost < double.PositiveInfinity)
-                    {
-                        edges.Add(new Edge(city, compareCity, false, cost));
-                    }
+                    if (row == column)
+                        costMatrix[row, column] = new Edge(row, column, true, Cities[row].costToGetTo(Cities[column]));
+                    else
+                        costMatrix[row, column] = new Edge(row, column, false, Cities[row].costToGetTo(Cities[column]));
                 }
-                result.Add(city, edges);
             }
-            return result;
+            return costMatrix;
         }
 
         public List<Ant> generateAntGroup(int numAnts)
@@ -87,13 +103,12 @@ namespace TSP
             return antGroup;
         }
 
-        public Edge pickEdge(List<Edge> edges)
+        public Edge pickEdge(Edge[,] matrix, int row)
         {
             //TODO: Probabilistically choose an edge from c
 
-            //randomly choose for now:
-            Random r = new Random();
-            return edges[r.Next(edges.Count)];
+            //if no possible edge exists:
+            return null;
         }
 
         public void antSolve()
@@ -101,8 +116,7 @@ namespace TSP
             //BASF = Best Ant So Far
             Ant BASF = new Ant(double.PositiveInfinity);
 
-            //generateMap runs in O(v^2)
-            Dictionary<City, List<Edge>> map = generateMap();
+            Edge[,] matrix = generateCostMatrix();
             
             int numIterations = 1;
 
@@ -114,54 +128,69 @@ namespace TSP
                 foreach (Ant ant in antGroup)
                 {
                     //start from a random city
-                    City startCity = Cities[random.Next(Cities.Length)];
-                    ant.setCurrentCity(startCity);
+                    int startCityIndex = random.Next(Cities.Length);
+                    ant.setCurrentCityIndex(startCityIndex);
 
-                    List<City> visitedCities = new List<City>();
-                    visitedCities.Add(startCity);
+                    //TODO: data structure for holding unvisited cities
+
                     //This while loop is to traverse a path
                     while (ant.GetEdges().Count < Cities.Length-1)
                     {
-                        Edge chosenEdge = pickEdge(map[ant.getCurrentCity()]);
-                        //This part can for sure be improved
-                        if (!visitedCities.Contains(chosenEdge.GetEndNode()))
+                        Edge chosenEdge = pickEdge(matrix, ant.getCurrentCityIndex());
+
+                        if (chosenEdge != null)
                         {
                             ant.addEdgeToRoute(chosenEdge);
-                            ant.setCurrentCity(chosenEdge.GetEndNode());
-                            visitedCities.Add(chosenEdge.GetEndNode());
+                            ant.setCurrentCityIndex(chosenEdge.GetEndCityIndex());
+                            //TODO: REMOVE ANT'S CURRENT CITY FROM UNVISITED CITIES
                         }
-                    }
-                    //need to add final edge back to start if it exists
-                    Boolean edgeFound = false;
-                    foreach (Edge edge in map[ant.getCurrentCity()])
-                    {
-                        if (edge.GetEndNode().Equals(startCity))
+                        else
                         {
-                            edgeFound = true;
-                            ant.addEdgeToRoute(edge);
-                            ant.setCurrentCity(edge.GetEndNode());
+                            //no path exists for this ant.
+                            break;
                         }
+                     
                     }
-                    if(edgeFound == false)
+
+                    if (ant.GetEdges().Count == Cities.Length - 1)
                     {
-                        ant.SetTotalCost(double.PositiveInfinity);
+                        //need to add final edge back to start if it exists
+                        if(matrix[ant.getCurrentCityIndex(), startCityIndex].GetCost() < double.PositiveInfinity)
+                        {
+                            ant.addEdgeToRoute(matrix[ant.getCurrentCityIndex(), startCityIndex]);
+                            ant.setCurrentCityIndex(startCityIndex);
+                        }
+                        else
+                        {
+                            ant.SetTotalCost(double.PositiveInfinity);
+                        }
                     }
                 }
 
                 //see which ant had the shortest cost path
                 Ant quickestAnt = new Ant(double.PositiveInfinity);
+                Ant worstAnt = new Ant(0);
                 foreach (Ant ant in antGroup)
                 {
                     if (ant.GetTotalCost() < quickestAnt.GetTotalCost())
                     {
                         quickestAnt = ant;
                     }
+                    if(ant.GetTotalCost() > worstAnt.GetTotalCost())
+                    {
+                        worstAnt = ant;
+                    }
                 }
                 
                 //update the quickest ant's edges with increased probability
                 foreach (Edge edge in quickestAnt.GetEdges())
                 {
-                    edge.increaseProbability();
+                    edge.AddPheromone();
+                }
+
+                foreach(Edge edge in worstAnt.GetEdges())
+                {
+                    edge.RemovePheromone();
                 }
 
                 if(quickestAnt.GetTotalCost() < BASF.GetTotalCost())
@@ -174,7 +203,7 @@ namespace TSP
             Route = new ArrayList(Cities.Length);
             foreach (Edge edge in BASF.GetEdges())
             {
-                Route.Add(edge.GetStartNode());
+                Route.Add(Cities[edge.GetStartCityIndex()]);
             }
             bssf = new TSPSolution(Route);
             // update the cost of the tour. 

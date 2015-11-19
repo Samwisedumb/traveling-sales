@@ -2,43 +2,44 @@
 {
     class Edge
     {
-        private City startNode;
-        private City endNode;
+        private int startCityIndex;
+        private int endCityIndex;
         private double cost;
         private bool visited;
-        private double probability;
+        private int pheromones;
 
-        public Edge(City startNode, City endNode, bool visited, double cost)
+        public Edge(int startCityIndex, int endCityIndex, bool visited, double cost)
         {
-            this.startNode = startNode;
-            this.endNode = endNode;
+            this.startCityIndex = startCityIndex;
+            this.endCityIndex = endCityIndex;
             this.visited = visited;
             this.cost = cost;
+            this.pheromones = 0;
         }
 
         public Edge() { }
 
-        public void increaseProbability()
-        {
-            //TODO: correctly increase probability
-        }
+        //public void increaseProbability()
+        //{
+        //    //TODO: correctly increase probability
+        //}
 
-        public City GetStartNode()
+        public int GetStartCityIndex()
         {
-            return startNode;
+            return startCityIndex;
         }
-        public void SetStartNode(City temp)
+        public void SetStartCityIndex(int temp)
         {
-            startNode = temp;
+            startCityIndex = temp;
         }
         
-        public City GetEndNode()
+        public int GetEndCityIndex()
         {
-            return endNode;
+            return endCityIndex;
         }
-        public void SetEndNode(City temp)
+        public void SetEndCityIndex(int temp)
         {
-            endNode = temp;
+            endCityIndex = temp;
         }
 
         public double GetCost()
@@ -59,13 +60,17 @@
             visited = temp;
         }
 
-        public double GetProbability()
+        public void AddPheromone()
         {
-            return probability;
+            pheromones++;
         }
-        public void SetProbability(double temp)
+        public void RemovePheromone()
         {
-            probability = temp;
+            pheromones--;
+        }
+        public void SetPheromones(int ph)
+        {
+            pheromones = ph;
         }
 
     }
