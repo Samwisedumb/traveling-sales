@@ -213,43 +213,35 @@ namespace TSP
         }
         public void randomSolve()
         {
-            /*Random rand = new Random();
+            Random rand = new Random();
             double randNum = rand.Next(0, Cities.Length);
             Route = new ArrayList(Cities.Length);
-            double BSSF = 0;
             List<double> randNums = new List<double>();
             randNums.Add(randNum);
             Route.Add(Cities[Convert.ToInt32(randNum)]);
             for (int i = 0; i < Cities.Length - 1; i++)
             {
-                double startNode = randNums[randNums.Count - 1];
+                int startNode = Convert.ToInt32(randNums[randNums.Count - 1]);
                 int size = randNums.Count;
                 while (size == randNums.Count)
                 {
                     randNum = rand.Next(0, Cities.Length);
-                    if (randNums.Contains(randNum))
+                    if (randNums.Contains(randNum) || Cities[startNode].costToGetTo(Cities[Convert.ToInt32(randNum)]) == double.PositiveInfinity)
+                    {
                         randNum = rand.Next(0, Cities.Length);
+                    }
                     else
                     {
                         randNums.Add(randNum);
                         Route.Add(Cities[Convert.ToInt32(randNum)]);
                     }
                 }
-                BSSF += currentState.getPoint(Convert.ToInt32(startNode), Convert.ToInt32(randNum));
-
-                if (BSSF == double.PositiveInfinity)
-                    return BSSF;
             }
-            Route.Add(Cities[Convert.ToInt32(randNums[0])]);
-            BSSF += currentState.getPoint(Convert.ToInt32(randNums[randNums.Count - 1]), Convert.ToInt32(randNums[0]));
-
-
             bssf = new TSPSolution(Route);
             // update the cost of the tour. 
             Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();
             // do a refresh. 
             Program.MainForm.Invalidate();
-            return BSSF;*/
 
         }
         public void greedySolve()
