@@ -1,5 +1,6 @@
 using C5;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -85,128 +86,48 @@ namespace TSP
                 for (int column = 0; column < Cities.Length; column++)
                 {
                     if (row == column)
-                        costMatrix[row, column] = new Edge(row, column, true, Cities[row].costToGetTo(Cities[column]));
+                        costMatrix[row, column] = new Edge(double.PositiveInfinity);
                     else
-                        costMatrix[row, column] = new Edge(row, column, false, Cities[row].costToGetTo(Cities[column]));
+                        costMatrix[row, column] = new Edge(Cities[row].costToGetTo(Cities[column]));
                 }
             }
             return costMatrix;
         }
-
-        public List<Ant> generateAntGroup(int numAnts)
-        {
-            List<Ant> antGroup = new List<Ant>();
-
-            for (int i=0; i < numAnts; i++)
-            {
-                antGroup.Add(new Ant());
-            }
-
-            return antGroup;
-        }
-
-        public Edge pickEdge(Edge[,] matrix, int row)
-        {
-            //TODO: Probabilistically choose an edge from c
-
-            //if no possible edge exists:
-            return null;
-        }
-
+            
         public void antSolve()
         {
             //BASF = Best Ant So Far
-            Ant BASF = new Ant(double.PositiveInfinity);
-
+            Ant BASF, bestAnt, worstAnt;
             Edge[,] matrix = generateCostMatrix();
-            
+
+            BASF = new Ant(ref matrix);
             int numIterations = 1;
 
             Random random = new Random();
-            for (int i=0; i < numIterations; i++)
+            for (int i = 0; i < numIterations; i++)
             {
+                bestAnt = new Ant(ref matrix);
+                worstAnt = bestAnt;
                 //send out ants!
-                List<Ant> antGroup = generateAntGroup(10);
-                foreach (Ant ant in antGroup)
+                for (int j = 1; j < 10; j++)
                 {
-                    //start from a random city
-                    int startCityIndex = random.Next(Cities.Length);
-                    ant.setCurrentCityIndex(startCityIndex);
-
-                    //TODO: data structure for holding unvisited cities
-
-                    //This while loop is to traverse a path
-                    while (ant.GetEdges().Count < Cities.Length-1)
-                    {
-                        Edge chosenEdge = pickEdge(matrix, ant.getCurrentCityIndex());
-
-                        if (chosenEdge != null)
-                        {
-                            ant.addEdgeToRoute(chosenEdge);
-                            ant.setCurrentCityIndex(chosenEdge.GetEndCityIndex());
-                            //TODO: REMOVE ANT'S CURRENT CITY FROM UNVISITED CITIES
-                        }
-                        else
-                        {
-                            //no path exists for this ant.
-                            break;
-                        }
-                     
-                    }
-
-                    if (ant.GetEdges().Count == Cities.Length - 1)
-                    {
-                        //need to add final edge back to start if it exists
-                        if(matrix[ant.getCurrentCityIndex(), startCityIndex].GetCost() < double.PositiveInfinity)
-                        {
-                            ant.addEdgeToRoute(matrix[ant.getCurrentCityIndex(), startCityIndex]);
-                            ant.setCurrentCityIndex(startCityIndex);
-                        }
-                        else
-                        {
-                            ant.SetTotalCost(double.PositiveInfinity);
-                        }
-                    }
-                }
-
-                //see which ant had the shortest cost path
-                Ant quickestAnt = new Ant(double.PositiveInfinity);
-                Ant worstAnt = new Ant(0);
-                foreach (Ant ant in antGroup)
-                {
-                    if (ant.GetTotalCost() < quickestAnt.GetTotalCost())
-                    {
-                        quickestAnt = ant;
-                    }
-                    if(ant.GetTotalCost() > worstAnt.GetTotalCost())
-                    {
+                    Ant ant = new Ant(ref matrix);
+                    if (ant.TotalCost < bestAnt.TotalCost)
+                        bestAnt = ant;
+                    else if (ant.TotalCost > worstAnt.TotalCost)
                         worstAnt = ant;
-                    }
-                }
-                
-                //update the quickest ant's edges with increased probability
-                foreach (Edge edge in quickestAnt.GetEdges())
-                {
-                    edge.AddPheromone();
                 }
 
-                foreach(Edge edge in worstAnt.GetEdges())
-                {
-                    edge.RemovePheromone();
-                }
-
-                if(quickestAnt.GetTotalCost() < BASF.GetTotalCost())
-                {
-                    BASF = quickestAnt;
-                }
+                bestAnt.dropPheromones();
+                worstAnt.decayPheromones();
+                if (bestAnt.TotalCost < BASF.TotalCost)
+                    BASF = bestAnt;
             }
 
             // call this the best solution so far.  bssf is the route that will be drawn by the Draw method. 
             Route = new ArrayList(Cities.Length);
-            foreach (Edge edge in BASF.GetEdges())
-            {
-                Route.Add(Cities[edge.GetStartCityIndex()]);
-            }
+            for (int i = 0; i < BASF.Route.Count - 1; i++)
+                Route.Add(BASF.Route[i]);
             bssf = new TSPSolution(Route);
             // update the cost of the tour. 
             Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();

@@ -31,10 +31,14 @@
             {
                 return pheromones * PHEROMONE_WEIGHT;
             }
-            set
-            {
-                pheromones = value;
-            }
+        }
+        public void IncrementPheromones(){
+            pheromones++;
+        }
+
+        public void DecrementPheromones(){
+            if (pheromones > 0)
+                pheromones--;
         }
     }
 }

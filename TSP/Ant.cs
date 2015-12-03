@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System;
 
 namespace TSP
@@ -7,6 +8,8 @@ namespace TSP
     {
         //private List<Edge> edges;
         private bool[] visited;
+        private List<int> route;
+        private bool complete;
         private double totalCost = 0;
         private Edge[,] costMatrix;
         private Random rand = new Random();
@@ -56,14 +59,7 @@ namespace TSP
             return -1;
         }
 
-        public Ant(ref Edge[,] costMatrix)
-        {
-            this.costMatrix = costMatrix;
-            visited = new bool[costMatrix.Length];
-            totalCost = 0;
-        }
-
-        public IEnumerable<int> Route(){
+        private IEnumerable<int> Travel(){
             int startCity = BeginTraversal();
             int currentCity = startCity;
             int routeLength = 0;
@@ -87,6 +83,43 @@ namespace TSP
                 totalCost += costMatrix[currentCity, nextCity].Cost;
                 currentCity = nextCity;
                 routeLength++;
+            }
+        }
+
+        public Ant(ref Edge[,] costMatrix)
+        {
+            this.costMatrix = costMatrix;
+            visited = new bool[costMatrix.Length];
+            route = Travel().ToList();
+            complete = (route.Count == costMatrix.Length);
+        }
+
+        public void decayPheromones(){
+            for (int i = 0; i < route.Count - 1; i++)
+                costMatrix[route[i], route[i + 1]].DecrementPheromones();
+        }
+
+        public void dropPheromones(){
+            for (int i = 0; i < route.Count - 1; i++)
+                costMatrix[route[i], route[i + 1]].IncrementPheromones();
+        }
+
+        public double TotalCost
+        {
+            get
+            {
+                if (complete)
+                    return totalCost;
+                else
+                    return double.PositiveInfinity;
+            }
+        }
+
+        public List<int> Route
+        {
+            get
+            {
+                return route;
             }
         }
     }
