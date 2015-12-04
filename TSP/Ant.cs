@@ -54,6 +54,17 @@ namespace TSP
             }
             return -1;
         }
+
+        private void setTotalCost()
+        {
+            totalCost = 0;
+            for(int i=0; i < route.Count-1; i++)
+            {
+                totalCost += costMatrix[route[i], route[i + 1]].Cost;
+            }
+            //add final edge:
+            totalCost += costMatrix[route[route.Count - 1], route[0]].Cost;
+        }
         
         public Ant(ref Edge[,] costMatrix)
         {
@@ -66,6 +77,11 @@ namespace TSP
             while (route.Count < costMatrix.GetLength(0) && route.Last() != -1)
                 route.Add(TraverseFrom(route.Last()));
             complete = route.Last() != -1;
+
+            if (complete)
+            {
+                setTotalCost();
+            }
         }
 
         public void decayPheromones(){
@@ -95,6 +111,11 @@ namespace TSP
             {
                 return route;
             }
+        }
+
+        public void setTotalCost(double val)
+        {
+            totalCost = val;
         }
 
         public bool IsComplete

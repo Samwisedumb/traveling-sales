@@ -105,7 +105,7 @@ namespace TSP
                 BASF = new Ant(ref matrix);
             } while (!(BASF.IsComplete));
             
-            int numIterations = 10;
+            int numIterations = 5000;
             for (int i = 0; i < numIterations; i++)
             {
                 do
@@ -114,7 +114,7 @@ namespace TSP
                 } while (!bestAnt.IsComplete);
                 worstAnt = bestAnt;
                 //send out ants!
-                for (int j = 1; j < 10; j++)
+                for (int j = 1; j < 100; j++)
                 {
                     Ant ant = new Ant(ref matrix);
                     if (ant.IsComplete)
