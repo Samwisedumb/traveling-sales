@@ -100,22 +100,31 @@ namespace TSP
             Ant BASF, bestAnt, worstAnt;
             Edge[,] matrix = generateCostMatrix();
 
-            BASF = new Ant(ref matrix);
-            int numIterations = 1;
-
-            Random random = new Random();
+            do
+            {
+                BASF = new Ant(ref matrix);
+            } while (!(BASF.IsComplete));
+            
+            int numIterations = 10;
             for (int i = 0; i < numIterations; i++)
             {
-                bestAnt = new Ant(ref matrix);
+                do
+                {
+                    bestAnt = new Ant(ref matrix);
+                } while (!bestAnt.IsComplete);
                 worstAnt = bestAnt;
                 //send out ants!
                 for (int j = 1; j < 10; j++)
                 {
                     Ant ant = new Ant(ref matrix);
-                    if (ant.TotalCost < bestAnt.TotalCost)
-                        bestAnt = ant;
-                    else if (ant.TotalCost > worstAnt.TotalCost)
-                        worstAnt = ant;
+                    if (ant.IsComplete)
+                    {
+                        if (ant.TotalCost < bestAnt.TotalCost)
+                            bestAnt = ant;
+                        else if (ant.TotalCost > worstAnt.TotalCost)
+                            worstAnt = ant;
+                    }
+                    
                 }
 
                 bestAnt.dropPheromones();
@@ -126,8 +135,8 @@ namespace TSP
 
             // call this the best solution so far.  bssf is the route that will be drawn by the Draw method. 
             Route = new ArrayList(Cities.Length);
-            for (int i = 0; i < BASF.Route.Count - 1; i++)
-                Route.Add(BASF.Route[i]);
+            for (int i = 0; i < BASF.Route.Count; i++)
+                Route.Add(Cities[BASF.Route[i]]);
             bssf = new TSPSolution(Route);
             // update the cost of the tour. 
             Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();
