@@ -96,6 +96,9 @@ namespace TSP
             
         public void antSolve()
         {
+            timer = new Stopwatch();
+            timer.Start();
+
             //BASF = Best Ant So Far
             Ant BASF, bestAnt, worstAnt;
             Edge[,] matrix = generateCostMatrix();
@@ -140,6 +143,8 @@ namespace TSP
             bssf = new TSPSolution(Route);
             // update the cost of the tour. 
             Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();
+            TimeSpan ts = timer.Elapsed;
+            Program.MainForm.tbElapsedTime.Text = ts.TotalSeconds.ToString();
             // do a refresh. 
             Program.MainForm.Invalidate();
         }
@@ -429,6 +434,9 @@ namespace TSP
         }
         public void randomSolve()
         {
+            timer = new Stopwatch();
+            timer.Start();
+
             Random rand = new Random();
             double randNum = rand.Next(0, Cities.Length);
             Route = new ArrayList(Cities.Length);
@@ -453,9 +461,12 @@ namespace TSP
                     }
                 }
             }
+            
             bssf = new TSPSolution(Route);
             // update the cost of the tour. 
             Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();
+            TimeSpan ts = timer.Elapsed;
+            Program.MainForm.tbElapsedTime.Text = ts.TotalSeconds.ToString();
             // do a refresh. 
             Program.MainForm.Invalidate();
 
@@ -514,6 +525,8 @@ namespace TSP
         }
         public void greedySolve()
         {
+            timer = new Stopwatch();
+            timer.Start();
             Route = new ArrayList(Cities.Length);
             System.Collections.Generic.HashSet<int> unvisitedIndexes = new System.Collections.Generic.HashSet<int>(); // using a city's index in Cities, we can interate through indexes that have yet to be added
             for (int index = 0; index < Cities.Length; index++)
@@ -572,6 +585,8 @@ namespace TSP
             bssf = new TSPSolution(Route);
             // update the cost of the tour. 
             Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();
+            TimeSpan ts = timer.Elapsed;
+            Program.MainForm.tbElapsedTime.Text = ts.TotalSeconds.ToString();
             // do a refresh. 
             Program.MainForm.Invalidate();
         }
