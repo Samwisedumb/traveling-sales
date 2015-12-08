@@ -108,8 +108,9 @@ namespace TSP
                 BASF = new Ant(ref matrix);
             } while (!(BASF.IsComplete));
             
-            double MIN_IMPROVEMENT = .90;
-            int MAX_REDUNDANT_ITERATIONS = 100;
+            //I found that these were good values.
+            double MIN_IMPROVEMENT = .70;
+            int MAX_REDUNDANT_ITERATIONS = 25;
             int redundant_iterations = 0;
             while(redundant_iterations < MAX_REDUNDANT_ITERATIONS)
             {
@@ -119,7 +120,8 @@ namespace TSP
                 } while (!bestAnt.IsComplete);
                 worstAnt = bestAnt;
                 //send out ants!
-                for (int j = 1; j < 10; j++)
+                //With only two ants, two sets of edges will be either increased or decayed. Edges occuring in both solutions will be slightly decremented.
+                for (int j = 1; j < 2; j++)
                 {
                     Ant ant = new Ant(ref matrix);
                     if (ant.IsComplete)
@@ -132,8 +134,8 @@ namespace TSP
                     
                 }
 
-                bestAnt.updatePheromones();
-                //worstAnt.decayPheromones();
+                bestAnt.updatePheromones(false);
+                worstAnt.updatePheromones(true);
                 //improvement represents the ratio of this ant's journey to the current best.
                 double improvement = bestAnt.TotalCost / BASF.TotalCost;
                 if (improvement < 1)

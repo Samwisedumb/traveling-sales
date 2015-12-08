@@ -2,17 +2,17 @@
 {
     class Edge
     {
-        //These are implied
-        //private int startCityIndex;
-        //private int endCityIndex;
         private double cost;
-        //private bool visited;
         private double pheromones;
-
+        private double cost_factor_weight;
+        //The higher this is, the more that edge cost will impact decisions
+        private const int COST_FACTOR = 25;
+        
         public Edge(double cost)
         {
             this.cost = cost;
-            this.pheromones = 0;
+            this.cost_factor_weight = System.Math.Pow((1 / cost), COST_FACTOR);
+            this.pheromones = 1;
         }
 
         public double Cost
@@ -27,7 +27,8 @@
         {
             get
             {
-                return ((1 / cost) + pheromones);
+                //Pheromones will now have even more of an impact on edge decision
+                return (cost_factor_weight * pheromones);
             }
         }
             

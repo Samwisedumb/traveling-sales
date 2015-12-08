@@ -8,9 +8,9 @@ namespace TSP
 {
     class Ant
     {
-        private const int PHEROMONE_ADJ = 100;
-        private const double DECAY_COEFFICIENT = .1;
-        //private List<Edge> edges;
+        //The decay coefficient & the increase coefficient are now related
+        private const double DECAY_COEFFICIENT = .75;
+        private const double INCREASE_COEFFICIENT = 1 / DECAY_COEFFICIENT;
         private bool[] visited;
         private List<int> route;
         private bool complete = false;
@@ -83,19 +83,16 @@ namespace TSP
             }
         }
 
-        private void UpdateFunction(bool included, ref Edge e){
-            e.Pheromones = (1 - DECAY_COEFFICIENT) * e.Pheromones + (included ? PHEROMONE_ADJ / totalCost : 0);
+        private void UpdateFunction(bool decay, ref Edge e){
+            //Decaying will lower the pheromone level more than increasing will raise it.
+            //Note that the pheromones are now updated independently of the cost of the ants path
+            e.Pheromones = (decay ? (1 - DECAY_COEFFICIENT) * e.Pheromones : INCREASE_COEFFICIENT * e.Pheromones);
         }
 
-        public void updatePheromones(){
-                
+        public void updatePheromones(bool decay)
+        {
             for (int i = 0; i < route.Count - 1; i++)
-            {
-                for (int j = 0; j < route.Count; j++)
-                {
-                    UpdateFunction(j == route[i + 1], ref costMatrix[route[i], route[j]]);
-                }
-            }
+                UpdateFunction(decay, ref costMatrix[route[i], route[i + 1]]);
         }
 
         public double TotalCost
