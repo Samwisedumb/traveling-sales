@@ -70,7 +70,7 @@ namespace TSP
             Debug.Assert(costMatrix.GetLength(0) > 0);
             this.costMatrix = costMatrix;
             visited = new bool[costMatrix.GetLength(0)];
-            route = new List<int>(20);
+            route = new List<int>(costMatrix.GetLength(0));
             //Generate the route.
             route.Add(BeginTraversal());
             while (route.Count < costMatrix.GetLength(0) && route.Last() != -1)
@@ -93,6 +93,7 @@ namespace TSP
         {
             for (int i = 0; i < route.Count - 1; i++)
                 UpdateFunction(decay, ref costMatrix[route[i], route[i + 1]]);
+            UpdateFunction(decay, ref costMatrix[route.Last(), route.First()]);
         }
 
         public double TotalCost
