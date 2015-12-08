@@ -8,6 +8,8 @@ namespace TSP
 {
     class Ant
     {
+        private const int PHEROMONE_ADJ = 100;
+        private const double DECAY_COEFFICIENT = .1;
         //private List<Edge> edges;
         private bool[] visited;
         private List<int> route;
@@ -31,21 +33,18 @@ namespace TSP
             return startCity;
         }
 
+        private double SumOfRowWeights(int startCity){
+            double total_weights = 0;
+            foreach (int destCity in ValidDestinations(startCity))
+                total_weights += costMatrix[startCity, destCity].Desirability;
+            return total_weights;
+        }
+
         private int TraverseFrom(int startCity){
-            double sumOfCosts = 0;
-            int sumOfPheromones = 0;
-            int validCount = 0;
+            double totalWeight = SumOfRowWeights(startCity);
+            double decision = rand.NextDouble();
             foreach (int destCity in ValidDestinations(startCity)){
-                sumOfCosts += costMatrix[startCity, destCity].Cost;
-                sumOfPheromones += costMatrix[startCity, destCity].Pheromones;
-                validCount++;
-            }
-            double maxDecision = (sumOfCosts * (validCount - 1) + sumOfPheromones);
-            double decision = rand.NextDouble() * maxDecision;
-            foreach (int destCity in ValidDestinations(startCity)){
-                double partitionSize = sumOfCosts -
-                                    costMatrix[startCity, destCity].Cost +
-                                    costMatrix[startCity, destCity].Pheromones;
+                double partitionSize = costMatrix[startCity, destCity].CalculateProbability(totalWeight);
                 if (decision <= partitionSize){
                     visited[destCity] = true;
                     return destCity;
@@ -84,14 +83,19 @@ namespace TSP
             }
         }
 
-        public void decayPheromones(){
-            for (int i = 0; i < route.Count - 1; i++)
-                costMatrix[route[i], route[i + 1]].DecrementPheromones();
+        private void UpdateFunction(bool included, ref Edge e){
+            e.Pheromones = (1 - DECAY_COEFFICIENT) * e.Pheromones + (included ? PHEROMONE_ADJ / totalCost : 0);
         }
 
-        public void dropPheromones(){
+        public void updatePheromones(){
+                
             for (int i = 0; i < route.Count - 1; i++)
-                costMatrix[route[i], route[i + 1]].IncrementPheromones();
+            {
+                for (int j = 0; j < route.Count; j++)
+                {
+                    UpdateFunction(j == route[i + 1], ref costMatrix[route[i], route[j]]);
+                }
+            }
         }
 
         public double TotalCost

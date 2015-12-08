@@ -2,14 +2,12 @@
 {
     class Edge
     {
-
-        private const int PHEROMONE_WEIGHT = 5;
         //These are implied
         //private int startCityIndex;
         //private int endCityIndex;
         private double cost;
         //private bool visited;
-        private int pheromones;
+        private double pheromones;
 
         public Edge(double cost)
         {
@@ -25,20 +23,29 @@
             }
         }
 
-        public int Pheromones
+        public double Desirability
         {
             get
             {
-                return pheromones * PHEROMONE_WEIGHT;
+                return ((1 / cost) + pheromones);
             }
         }
-        public void IncrementPheromones(){
-            pheromones++;
+            
+        public double Pheromones
+        {
+            get
+            {
+                return pheromones;
+            }
+
+            set
+           {
+                pheromones = value;
+            }
         }
 
-        public void DecrementPheromones(){
-            if (pheromones > 0)
-                pheromones--;
+        public double CalculateProbability(double totalRowWeight){
+            return (Desirability / totalRowWeight);
         }
     }
 }

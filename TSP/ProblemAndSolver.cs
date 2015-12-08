@@ -108,8 +108,10 @@ namespace TSP
                 BASF = new Ant(ref matrix);
             } while (!(BASF.IsComplete));
             
-            int numIterations = 5000;
-            for (int i = 0; i < numIterations; i++)
+            double MIN_IMPROVEMENT = .90;
+            int MAX_REDUNDANT_ITERATIONS = 100;
+            int redundant_iterations = 0;
+            while(redundant_iterations < MAX_REDUNDANT_ITERATIONS)
             {
                 do
                 {
@@ -117,7 +119,7 @@ namespace TSP
                 } while (!bestAnt.IsComplete);
                 worstAnt = bestAnt;
                 //send out ants!
-                for (int j = 1; j < 100; j++)
+                for (int j = 1; j < 10; j++)
                 {
                     Ant ant = new Ant(ref matrix);
                     if (ant.IsComplete)
@@ -130,10 +132,14 @@ namespace TSP
                     
                 }
 
-                bestAnt.dropPheromones();
-                worstAnt.decayPheromones();
-                if (bestAnt.TotalCost < BASF.TotalCost)
+                bestAnt.updatePheromones();
+                //worstAnt.decayPheromones();
+                //improvement represents the ratio of this ant's journey to the current best.
+                double improvement = bestAnt.TotalCost / BASF.TotalCost;
+                if (improvement < 1)
                     BASF = bestAnt;
+                if (improvement > MIN_IMPROVEMENT)
+                    redundant_iterations++;
             }
 
             // call this the best solution so far.  bssf is the route that will be drawn by the Draw method. 
