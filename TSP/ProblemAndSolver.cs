@@ -107,12 +107,12 @@ namespace TSP
             {
                 BASF = new Ant(ref matrix);
             } while (!(BASF.IsComplete));
-            
+
             //I found that these were good values.
             double MIN_IMPROVEMENT = .70;
             int MAX_REDUNDANT_ITERATIONS = 25;
             int redundant_iterations = 0;
-            while(redundant_iterations < MAX_REDUNDANT_ITERATIONS)
+            while (redundant_iterations < MAX_REDUNDANT_ITERATIONS)
             {
                 do
                 {
@@ -131,7 +131,7 @@ namespace TSP
                         else if (ant.TotalCost > worstAnt.TotalCost)
                             worstAnt = ant;
                     }
-                    
+
                 }
 
                 bestAnt.updatePheromones(false);
@@ -150,10 +150,14 @@ namespace TSP
                 Route.Add(Cities[BASF.Route[i]]);
             bssf = new TSPSolution(Route);
             // update the cost of the tour. 
-            Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();
-            TimeSpan ts = timer.Elapsed;
-            Program.MainForm.tbElapsedTime.Text = ts.TotalSeconds.ToString();
+                
+                TimeSpan ts = timer.Elapsed;
+
             // do a refresh. 
+                
+            
+            Program.MainForm.tbCostOfTour.Text = " " + bssf.costOfRoute();
+            Program.MainForm.tbElapsedTime.Text = ts.TotalSeconds.ToString();
             Program.MainForm.Invalidate();
         }
         double BSSF; // Best solution so far
@@ -192,11 +196,7 @@ namespace TSP
                 if (queue.Count > maxStates) //if maxStates needs to be updated, update it
                     maxStates = queue.Count;
                 ts = timer.Elapsed;
-                if (ts.Seconds == 30)
-                {
-                    terminatedEarly = true;
-                    break;
-                }
+
                 State min = queue.DeleteMin();
                 if (totalSeconds < ts.Seconds)
                 {
